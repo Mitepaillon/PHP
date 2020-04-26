@@ -1,43 +1,35 @@
 <?php
 //dao = data acces object
 //dal = data access layer
-class ProductManager {
+class UserManager {
     private $table;
     private $connection;
-    private $product_list;
+    private $user_list;
     
     function __construct() {
-        $this->table = 'products';
+        $this->table = 'users';
         $this->connection = new PDO('mysql:host=localhost;dbname=demo', 'root', '');
         $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         
-        $this->product_list = array();
+        $this->user_list = array();
     }
     
     function save($data) {
         $data['pk'] = -1;
-        $product = $this->create([
+        $user = $this->create([
             'pk' => $data['pk'],
-            'name' => $data['name'],
-            'price' =>$data['price'],
-            'vat' => 0,
-            'price_vat' => 0, 
-            'price_total' => 0,
-            'quantity' => $data['quantity']
+            'username' => $data['username'],
+            'password' => $data['password'],
         ]);
         
-        if ($product) {
+        if ($user) {
             try {
                 $statement = $this->connection->prepare(
-                    "INSERT INTO {$this->table} (name, price, vat, price_vat, price_total, quantity) VALUES (?, ?, ?, ?, ?, ?)"
+                    "INSERT INTO {$this->table} (username, password) VALUES (?, ?)"
                 );
                 $statement->execute([
-                    $product->__get('name'),
-                    $product->__get('price'),
-                    $product->__get('vat'),
-                    $product->__get('price_vat'),
-                    $product->__get('price_total'),
-                    $product->__get('quantity')
+                    $user->__get('username'),
+                    $user->__get('password'),
                 ]);
             } catch(PDOException $e) {
                 print $e->getMessage();
@@ -45,9 +37,9 @@ class ProductManager {
         } 
     }
 	
-	function update($name,$price,$quantity,$pk){
-        $statement = $this->connection->prepare("UPDATE products SET name = ?, price = ?, quantity = ? WHERE pk = ?");
-        $statement->execute(([$name,$price,$quantity,$pk]));
+	function update($username,$password,$pk){
+        $statement = $this->connection->prepare("UPDATE users SET username = ?, password = ? WHERE pk = ?");
+        $statement->execute(([$username,$password,$pk]));
     }
     
     function fetchAll() {
@@ -56,27 +48,21 @@ class ProductManager {
             $statement->execute();
             $results = $statement->fetchAll(PDO::FETCH_ASSOC);
             
-            foreach($results as $product) {
-                array_push($this->product_list, $this->create($product));
+            foreach($results as $user) {
+                array_push($this->user_list, $this->create($user));
             }
-            return $this->product_list;
+            return $this->user_list;
             
         } catch (PDOException $e) {
             print $e->getMessage();
         }    
     }
     
-    
-    
     function create($data) {
-        return new Product(
+        return new user(
             $data['pk'],
-            $data['name'],
-            $data['price'],
-            $data['vat'],
-            $data['price_vat'],
-            $data['price_total'],
-            $data['quantity']
+            $data['username'],
+            $data['password']
         );
     }
 	
@@ -89,5 +75,6 @@ class ProductManager {
                 print $e->getMessage();
             }
         
-	}   
+	}    
+    
 }

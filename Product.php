@@ -30,4 +30,14 @@ class Product {
 			$this->$property = $value;
 		}
     }
+	
+	function prixTotal($price, $vat){
+		$price_total = $price + (($price/100)*$vat);
+		return $price_total;	
+	}
+	
+	function prixTVA($price, $vat){
+		$price_vat = (($price/100)*$vat);
+		return $price_vat;
+	}
 }
